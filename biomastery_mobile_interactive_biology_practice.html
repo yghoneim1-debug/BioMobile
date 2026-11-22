@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>BioMastery — Mobile Interactive Practice</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    /* =========================================================================
+       THEME TOKENS: Burgundy (Default), Forest Sage, Ocean Slate, White/Black
+       ========================================================================= */
+    :root, [data-theme="burgundy"] {
+      --bg-outer: #f2e8eb;
+      --bg-page: #fbf8f9;
+      --bg-card: #ffffff;
+      --bg-subtle: #f6ecef;
+      --bg-muted: #eedce1;
+      --border-color: #e4c9d1;
+      --border-strong: #c897a6;
+      --text-main: #1f0e14;
+      --text-secondary: #58323f;
+      --text-muted: #8a5e6c;
+      --primary: #7a1c32;
+      --primary-hover: #611426;
+      --primary-fg: #ffffff;
+      --primary-soft: #f5ebee;
+      --primary-soft-border: #dcb4c0;
+      --primary-text: #7a1c32;
+      --svg-ink: #1f0e14;
+      --svg-accent: #9f1239;
+      --svg-fill: #fbf8f9;
+      --glow-color: rgba(122, 28, 50, 0.25);
+    }
+
+    [data-theme="forest"] {
+      --bg-outer: #e5efe9;
+      --bg-page: #f6faf8;
+      --bg-card: #ffffff;
+      --bg-subtle: #ebf3ef;
+      --bg-muted: #dce9e2;
+      --border-color: #c2d9cd;
+      --border-strong: #93b8a5;
+      --text-main: #0e2118;
+      --text-secondary: #315242;
+      --text-muted: #5c7d6d;
+      --primary: #1b5e43;
+      --primary-hover: #134732;
+      --primary-fg: #ffffff;
+      --primary-soft: #e6f4ed;
+      --primary-soft-border: #9fd3b8;
+      --primary-text: #1b5e43;
+      --svg-ink: #0e2118;
+      --svg-accent: #b91c1c;
+      --svg-fill: #f6faf8;
+      --glow-color: rgba(27, 94, 67, 0.25);
+    }
+
+    [data-theme="ocean"] {
+      --bg-outer: #e3ebf6;
+      --bg-page: #f5f8fc;
+      --bg-card: #ffffff;
+      --bg-subtle: #eaf0f8;
+      --bg-muted: #dae4f2;
+      --border-color: #bfd0e6;
+      --border-strong: #8eaad1;
+      --text-main: #0d1b2e;
+      --text-secondary: #2d4769;
+      --text-muted: #5a7699;
+      --primary: #1e40af;
+      --primary-hover: #1e3a8a;
+      --primary-fg: #ffffff;
+      --primary-soft: #e8effc;
+      --primary-soft-border: #a5bdfa;
+      --primary-text: #1e40af;
+      --svg-ink: #0d1b2e;
+      --svg-accent: #dc2626;
+      --svg-fill: #f5f8fc;
+      --glow-color: rgba(30, 64, 175, 0.25);
+    }
+
+    /* Single Monochrome Dark Theme: White / Black */
+    [data-theme="white-black"] {
+      --bg-outer: #000000;
+      --bg-page: #09090b;
+      --bg-card: #121215;
+      --bg-subtle: #18181b;
+      --bg-muted: #27272a;
+      --border-color: #27272a;
+      --border-strong: #52525b;
+      --text-main: #fafafa;
+      --text-secondary: #d4d4d8;
+      --text-muted: #a1a1aa;
+      --primary: #ffffff;
+      --primary-hover: #e4e4e7;
+      --primary-fg: #09090b;
+      --primary-soft: #1f1f23;
+      --primary-soft-border: #71717a;
+      --primary-text: #ffffff;
+      --svg-ink: #fafafa;
+      --svg-accent: #ffffff;
+      --svg-fill: #18181b;
+      --glow-color: rgba(255, 255, 255, 0.22);
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-outer);
+      color: var(--text-main);
+      overflow-x: hidden;
+      overscroll-behavior-y: contain;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Mobile App Shell centered cleanly on wider screens */
+    #app-shell {
+      min-height: 100dvh;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      background-color: var(--bg-page);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Theme Utility Classes */
+    .t-bg-page { background-color: var(--bg-page); }
+    .t-bg-card { background-color: var(--bg-card); }
+    .t-bg-subtle { background-color: var(--bg-subtle); }
+    .t-bg-muted { background-color: var(--bg-muted); }
+    .t-border { border-color: var(--border-color); }
+    .t-border-strong { border-color: var(--border-strong); }
+    .t-text-main { color: var(--text-main); }
+    .t-text-secondary { color: var(--text-secondary); }
+    .t-text-muted { color: var(--text-muted); }
+    .t-primary-bg { background-color: var(--primary); color: var(--primary-fg); }
+    .t-primary-soft { background-color: var(--primary-soft); border-color: var(--primary-soft-border); color: var(--primary-text); }
+    .t-primary-text { color: var(--primary-text); }
+
+    /* Animations */
+    @keyframes viewEnter {
+      0% { opacity: 0; transform: translateY(14px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cardStagger {
+      0% { opacity: 0; transform: translateY(18px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes springSnap {
+      0% { transform: scale(0.9); }
+      55% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shakeWrong {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes sheetSlideUp {
+      0% { transform: translateY(100%); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes confettiDrop {
+      0% { transform: translateY(-10px) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translateY(140px) rotate(360deg) scale(0.4); opacity: 0; }
+    }
+
+    .animate-view { animation: viewEnter 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .animate-stagger { opacity: 0; animation: cardStagger 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .animate-snap { animation: springSnap 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    .animate-shake { animation: shakeWrong 0.36s ease-in-out; }
+    .animate-float { animation: floatSlow 3.4s ease-in-out infinite; }
+    .animate-sheet { animation: sheetSlideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+    /* Touch Drag & Slot Styling */
+    .touch-card {
+      touch-action: none;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, opacity 0.16s ease;
+    }
+
+    .touch-card:active {
+      transform: scale(0.97);
+    }
+
+    .touch-card.is-dragging-source {
+      opacity: 0.35;
+      transform: scale(0.95);
+    }
+
+    .drop-slot {
+      min-height: 50px;
+      transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .drop-slot.drag-hover {
+      background-color: var(--primary-soft) !important;
+      border-color: var(--primary) !important;
+      border-style: solid !important;
+      transform: scale(1.02);
+      box-shadow: 0 0 0 3px var(--glow-color);
+    }
+
+    .drop-slot.tap-ready {
+      border-color: var(--primary) !important;
+      background-color: var(--primary-soft);
+      box-shadow: 0 0 0 2px var(--glow-color);
+    }
+
+    /* Floating Ghost Card under Finger */
+    #drag-ghost {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      transform: translate(-50%, -115%) scale(1.03);
+      max-width: 300px;
+      width: max-content;
+      box-shadow: 0 18px 34px -8px rgba(0, 0, 0, 0.32);
+    }
+
+    /* Sticky Bottom Answer Tray */
+    #bottom-tray {
+      position: sticky;
+      bottom: 0;
+      z-index: 30;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      box-shadow: 0 -10px 26px -8px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Hide scrollbar on horizontal swipe strip */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .confetti-dot {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      border-radius: 4px;
+      animation: confettiDrop 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+  </style>
+</head>
+<body data-theme="burgundy">
+
+  <div id="app-shell">
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 1: MINIMALIST MOBILE LANDING PAGE                                -->
+    <!-- ===================================================================== -->
+    <section id="landing-view" class="flex-1 flex flex-col justify-between px-5 pt-5 pb-8 animate-view">
+      <!-- Top Bar -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl t-primary-bg flex items-center justify-center text-lg shadow-xs">
+            🧬
+          </div>
+          <span class="font-extrabold text-base tracking-tight t-text-main">BioMastery</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="toggleSound()" id="landing-sound-btn" aria-label="Toggle Sound"
+                  class="w-11 h-11 rounded-2xl t-bg-card t-text-main border t-border flex items-center justify-center text-base active:scale-95 transition">
+            🔊
+          </button>
+          <button onclick="openOptions()" aria-label="Options"
+                  class="h-11 px-4 rounded-2xl t-bg-card t-text-main border t-border flex items-center gap-1.5 text-xs font-bold active:scale-95 transition">
+            <span>⚙️</span>
+            <span>Options</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Center Hero -->
+      <div class="text-center px-2 my-auto py-8">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-3xl t-primary-soft border flex items-center justify-center text-4xl shadow-xs animate-float">
+          🧬
+        </div>
+
+        <h1 class="text-3xl font-extrabold tracking-tight t-text-main mb-2.5">
+          Molecular Genetics
+        </h1>
+
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full t-primary-soft border text-xs font-bold mb-9">
+          <span>5 Modules</span>
+          <span>&bull;</span>
+          <span>17 Marks</span>
+        </div>
+
+        <button onclick="openDashboard()"
+                class="w-full h-14 rounded-2xl t-primary-bg font-extrabold text-base shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2.5">
+          <span>Start Practice</span>
+          <span class="text-lg">→</span>
+        </button>
+      </div>
+
+      <div class="h-2"></div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 2: ANIMATED QUESTION DASHBOARD                                   -->
+    <!-- ===================================================================== -->
+    <section id="dashboard-view" class="hidden flex-1 flex flex-col">
+      <!-- Sticky Top Header -->
+      <header class="sticky top-0 z-30 t-bg-page/95 backdrop-blur-md border-b t-border px-4 py-3 flex items-center justify-between">
+        <button onclick="openLanding()"
+                class="h-11 px-3.5 rounded-2xl t-bg-card t-text-main border t-border text-xs font-bold flex items-center gap-1.5 active:scale-95 transition">
+          <span>←</span>
+          <span>Home</span>
+        </button>
+
+        <span class="font-extrabold text-sm t-text-main">Modules</span>
+
+        <div class="flex items-center gap-1.5">
+          <button onclick="toggleSound()" id="dashboard-sound-btn" aria-label="Toggle Sound"
+                  class="w-11 h-11 rounded-2xl t-bg-card t-text-main border t-border flex items-center justify-center text-sm active:scale-95 transition">
+            🔊
+          </button>
+          <button onclick="openOptions()" aria-label="Options"
+                  class="w-11 h-11 rounded-2xl t-bg-card t-text-main border t-border flex items-center justify-center text-sm active:scale-95 transition">
+            ⚙️
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Dashboard Cards -->
+      <main class="flex-1 px-4 py-5 flex flex-col gap-4">
+        <!-- Overall Progress Card -->
+        <div class="t-bg-card rounded-3xl border t-border p-4 shadow-2xs animate-view">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider t-text-muted">Total Score</span>
+            <span id="dash-total-text" class="text-sm font-extrabold t-primary-text">0.0 / 17.0</span>
+          </div>
+          <div class="w-full h-2.5 rounded-full t-bg-subtle overflow-hidden border t-border mb-3.5">
+            <div id="dash-total-bar" class="h-full t-primary-bg rounded-full transition-all duration-500" style="width: 0%;"></div>
+          </div>
+          <button id="dash-reset-btn" onclick="resetAllProgress(true)"
+                  class="w-full h-11 rounded-2xl t-bg-subtle t-text-secondary border t-border text-xs font-bold flex items-center justify-center gap-1.5 active:scale-98 transition">
+            <span>↺</span>
+            <span>Reset All Progress</span>
+          </button>
+        </div>
+
+        <!-- 5 Module Cards -->
+        <div id="dashboard-cards" class="flex flex-col gap-3 pb-6">
+          <!-- Injected via JS -->
+        </div>
+      </main>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 3: MOBILE TOUCH PRACTICE WORKSPACE                               -->
+    <!-- ===================================================================== -->
+    <section id="practice-view" class="hidden flex-1 flex flex-col">
+      <!-- Compact Sticky Top Bar -->
+      <header class="sticky top-0 z-30 t-bg-page/95 backdrop-blur-md border-b t-border px-3.5 py-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <button onclick="openDashboard()"
+                  class="h-11 px-3 rounded-2xl t-bg-card t-text-main border t-border text-xs font-bold flex items-center gap-1 active:scale-95 transition shrink-0">
+            <span>←</span>
+            <span>Modules</span>
+          </button>
+
+          <!-- Question Pill & Live Score -->
+          <div class="flex items-center gap-1.5 px-3 h-11 rounded-2xl t-primary-soft border">
+            <span id="ws-q-id" class="text-xs font-extrabold">Q13</span>
+            <span class="opacity-40">&bull;</span>
+            <span id="ws-q-score" class="text-xs font-extrabold">0.0 / 5.0</span>
+          </div>
+
+          <!-- Compact Reset & Key Buttons -->
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="showAnswerKey()" title="Show Key"
+                    class="w-11 h-11 rounded-2xl t-bg-card t-text-main border t-border text-sm font-bold flex items-center justify-center active:scale-95 transition">
+              👁️
+            </button>
+            <button onclick="resetCurrentQuestion()" title="Reset Question"
+                    class="w-11 h-11 rounded-2xl t-bg-card t-text-main border t-border text-sm font-bold flex items-center justify-center active:scale-95 transition">
+              ↺
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Question Content Area -->
+      <main id="ws-scroll-area" class="flex-1 px-4 pt-4 pb-6 flex flex-col gap-4 animate-view">
+        <!-- Prompt Header -->
+        <div class="t-bg-card rounded-2xl border t-border p-3.5">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <span id="ws-category-tag" class="text-[11px] font-extrabold uppercase tracking-wider t-primary-text">Comparison</span>
+            <span id="ws-marks-tag" class="text-[11px] font-bold t-text-muted">5 Marks (0.5 each)</span>
+          </div>
+          <h2 id="ws-title" class="text-sm font-bold t-text-main leading-snug">
+            Differentiate between DNA replication and transcription.
+          </h2>
+        </div>
+
+        <!-- Exam Mode Check Button (Visible only in Exam Mode) -->
+        <button id="ws-exam-check-btn" onclick="checkExamAnswers()"
+                class="hidden w-full h-12 rounded-2xl bg-emerald-600 text-white font-extrabold text-sm shadow-sm active:scale-98 transition">
+          ✓ Check Answers
+        </button>
+
+        <!-- Dynamic Stacked Cards (Q13/Q14) OR SVG Diagram + Slots (Q18/Q19/Q20) -->
+        <div id="ws-stage" class="flex flex-col gap-3.5">
+          <!-- Rendered via JS -->
+        </div>
+
+        <!-- Next Module Button -->
+        <button id="ws-next-btn" onclick="goNextQuestion()"
+                class="w-full h-12 rounded-2xl t-primary-bg font-extrabold text-sm shadow-sm active:scale-98 transition flex items-center justify-center gap-2 mt-1">
+          <span>Next Module</span>
+          <span>→</span>
+        </button>
+      </main>
+
+      <!-- =================================================================== -->
+      <!-- STICKY THUMB-ZONE BOTTOM ANSWER TRAY                                -->
+      <!-- =================================================================== -->
+      <div id="bottom-tray" class="t-bg-card border-t t-border px-3.5 pt-2.5 rounded-t-3xl">
+        <!-- Tray Header -->
+        <div class="flex items-center justify-between mb-2 px-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider t-text-main">Answers</span>
+            <span id="tray-count" class="px-2 py-0.5 rounded-full text-[11px] font-extrabold t-primary-soft border">10</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span id="tray-hint" class="text-[11px] font-semibold t-text-muted">Drag or tap card</span>
+            <button onclick="shuffleTray()"
+                    class="h-8 px-2.5 rounded-xl t-bg-subtle t-text-secondary border t-border text-[11px] font-bold active:scale-95 transition">
+              🔀 Shuffle
+            </button>
+            <button onclick="toggleTrayLayout()" id="tray-layout-btn"
+                    class="h-8 px-2.5 rounded-xl t-bg-subtle t-text-secondary border t-border text-[11px] font-bold active:scale-95 transition">
+              ↕ Expand
+            </button>
+          </div>
+        </div>
+
+        <!-- Answer Cards Container (Horizontal Swipe Strip by default, Expandable to Vertical List) -->
+        <div id="tray-cards"
+             class="flex flex-row gap-2.5 overflow-x-auto no-scrollbar pb-1.5 items-stretch">
+          <!-- Touch-draggable / Tappable cards injected here -->
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Floating Ghost Element for Custom Touch Dragging -->
+  <div id="drag-ghost" class="hidden px-3.5 py-2.5 rounded-2xl t-primary-bg font-semibold text-xs leading-snug border border-white/20"></div>
+
+  <!-- ======================================================================= -->
+  <!-- MOBILE BOTTOM SHEET: OPTIONS & THEMES                                   -->
+  <!-- ======================================================================= -->
+  <div id="options-sheet" onclick="closeOptions(event)" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-end justify-center">
+    <div onclick="event.stopPropagation()" class="w-full max-w-[480px] t-bg-card t-text-main rounded-t-3xl border-t t-border p-5 pb-8 animate-sheet">
+      <!-- Handle bar -->
+      <div class="w-10 h-1.5 rounded-full t-bg-muted mx-auto mb-4"></div>
+
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-extrabold">Options</h3>
+        <button onclick="closeOptions()" class="w-9 h-9 rounded-full t-bg-subtle flex items-center justify-center text-xs font-bold">✕</button>
+      </div>
+
+      <!-- Theme Selection -->
+      <div class="mb-5">
+        <span class="block text-[11px] font-extrabold uppercase tracking-wider t-text-muted mb-2">Theme</span>
+        <div id="theme-grid" class="grid grid-cols-2 gap-2">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+      <!-- Feedback Mode & Sound -->
+      <div class="grid grid-cols-2 gap-2.5 mb-5">
+        <div>
+          <span class="block text-[11px] font-extrabold uppercase tracking-wider t-text-muted mb-2">Feedback</span>
+          <div class="flex rounded-2xl t-bg-subtle p-1 border t-border h-11">
+            <button id="opt-instant" onclick="setGradingMode('instant')" class="flex-1 rounded-xl text-xs font-bold transition">Instant</button>
+            <button id="opt-exam" onclick="setGradingMode('exam')" class="flex-1 rounded-xl text-xs font-bold transition">Exam</button>
+          </div>
+        </div>
+
+        <div>
+          <span class="block text-[11px] font-extrabold uppercase tracking-wider t-text-muted mb-2">Sound</span>
+          <button id="opt-sound" onclick="toggleSound()" class="w-full h-11 rounded-2xl border text-xs font-bold flex items-center justify-center gap-1.5 transition">
+            <span>🔊</span>
+            <span>On</span>
+          </button>
+        </div>
+      </div>
+
+      <button onclick="closeOptions()" class="w-full h-12 rounded-2xl t-primary-bg font-extrabold text-sm active:scale-98 transition">
+        Done
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. SOUND ENGINE & HAPTICS (UNLOCKED ON FIRST TOUCH)
+    // =========================================================================
+    let soundEnabled = localStorage.getItem('biomastery_mobile_sound') !== 'false';
+    let audioCtx = null;
+
+    function unlockAudio() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    document.addEventListener('pointerdown', unlockAudio, { once: true });
+
+    function vibrateDevice(ms) {
+      if (navigator.vibrate) {
+        try { navigator.vibrate(ms); } catch (e) {}
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      unlockAudio();
+      if (!audioCtx) return;
+
+      const now = audioCtx.currentTime;
+      if (type === 'pickup') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(380, now);
+        osc.frequency.exponentialRampToValueAtTime(580, now + 0.06);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.07);
+      } else if (type === 'drop') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(290, now);
+        osc.frequency.exponentialRampToValueAtTime(165, now + 0.055);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.065);
+      } else if (type === 'correct') {
+        [523.25, 659.25].forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          const t = now + i * 0.06;
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.001, t);
+          gain.gain.linearRampToValueAtTime(0.11, t + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(t);
+          osc.stop(t + 0.23);
+        });
+      } else if (type === 'wrong') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(175, now);
+        osc.frequency.exponentialRampToValueAtTime(115, now + 0.16);
+        gain.gain.setValueAtTime(0.07, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.18);
+      } else if (type === 'complete') {
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          const t = now + i * 0.065;
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.001, t);
+          gain.gain.linearRampToValueAtTime(0.11, t + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(t);
+          osc.stop(t + 0.32);
+        });
+      }
+    }
+
+    function updateSoundUI() {
+      const icon = soundEnabled ? '🔊' : '🔇';
+      ['landing-sound-btn', 'dashboard-sound-btn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = icon;
+      });
+      const optBtn = document.getElementById('opt-sound');
+      if (optBtn) {
+        optBtn.className = `w-full h-11 rounded-2xl border text-xs font-bold flex items-center justify-center gap-1.5 transition ${
+          soundEnabled ? 't-primary-soft border-current' : 't-bg-subtle t-border t-text-muted'
+        }`;
+        optBtn.innerHTML = `<span>${icon}</span><span>${soundEnabled ? 'On' : 'Muted'}</span>`;
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('biomastery_mobile_sound', soundEnabled);
+      updateSoundUI();
+      if (soundEnabled) playSound('pickup');
+    }
+
+    function burstConfetti() {
+      const colors = currentTheme === 'white-black'
+        ? ['#ffffff', '#a1a1aa', '#10b981']
+        : ['#7a1c32', '#be123c', '#10b981', '#f59e0b'];
+      for (let i = 0; i < 24; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-dot';
+        dot.style.left = `${15 + Math.random() * 70}vw`;
+        dot.style.top = `${16 + Math.random() * 18}vh`;
+        dot.style.width = `${6 + Math.random() * 5}px`;
+        dot.style.height = `${6 + Math.random() * 5}px`;
+        dot.style.backgroundColor = colors[i % colors.length];
+        dot.style.animationDelay = `${Math.random() * 0.15}s`;
+        document.body.appendChild(dot);
+        setTimeout(() => dot.remove(), 1100);
+      }
+    }
+
+    // =========================================================================
+    // 2. THEMES (BURGUNDY DEFAULT, FOREST SAGE, OCEAN SLATE, WHITE / BLACK)
+    // =========================================================================
+    const THEMES = [
+      { id: 'burgundy', name: 'Burgundy', tag: 'Default', dots: ['#7a1c32', '#fbf8f9'] },
+      { id: 'forest', name: 'Forest Sage', tag: 'Light', dots: ['#1b5e43', '#f6faf8'] },
+      { id: 'ocean', name: 'Ocean Slate', tag: 'Light', dots: ['#1e40af', '#f5f8fc'] },
+      { id: 'white-black', name: 'White / Black', tag: 'Dark', dots: ['#09090b', '#ffffff'] }
+    ];
+
+    let currentTheme = localStorage.getItem('biomastery_mobile_theme') || 'burgundy';
+    if (!THEMES.some(t => t.id === currentTheme)) currentTheme = 'burgundy';
+
+    function applyTheme(id) {
+      currentTheme = id;
+      document.body.setAttribute('data-theme', id);
+      localStorage.setItem('biomastery_mobile_theme', id);
+      renderThemeGrid();
+    }
+
+    function renderThemeGrid() {
+      const grid = document.getElementById('theme-grid');
+      if (!grid) return;
+      grid.innerHTML = THEMES.map(t => {
+        const active = t.id === currentTheme;
+        return `
+          <button onclick="playSound('pickup'); applyTheme('${t.id}')"
+                  class="h-12 px-3 rounded-2xl border-2 flex items-center justify-between gap-2 transition ${
+                    active ? 't-primary-soft border-current' : 't-bg-subtle t-border'
+                  }">
+            <div class="text-left">
+              <div class="text-xs font-extrabold leading-tight">${t.name}</div>
+              <div class="text-[10px] font-semibold opacity-70">${t.tag}</div>
+            </div>
+            <div class="flex -space-x-1">
+              ${t.dots.map(c => `<span class="w-4 h-4 rounded-full border border-black/25" style="background:${c}"></span>`).join('')}
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function openOptions() {
+      playSound('pickup');
+      renderThemeGrid();
+      updateModeUI();
+      updateSoundUI();
+      document.getElementById('options-sheet').classList.remove('hidden');
+    }
+
+    function closeOptions(e) {
+      if (!e || e.target.id === 'options-sheet') {
+        document.getElementById('options-sheet').classList.add('hidden');
+      }
+    }
+
+    // =========================================================================
+    // 3. EXACT EXAM QUESTIONS DATA (Q13, Q14, Q18, Q19, Q20 — 17 MARKS TOTAL)
+    // =========================================================================
+    const QUESTIONS = [
+      {
+        id: 'Q13',
+        shortTitle: 'DNA Replication vs. Transcription',
+        category: 'Comparison Table',
+        icon: '📊',
+        title: 'Differentiate between DNA replication and transcription using the features below.',
+        marks: 5,
+        markPerSlot: 0.5,
+        type: 'comparison',
+        colA: 'DNA replication',
+        colB: 'Transcription',
+        features: [
+          {
+            name: 'Purpose',
+            slotA: { id: 'q13_r1_c1', answer: 'DNA replication copies the genetic material before cell division.' },
+            slotB: { id: 'q13_r1_c2', answer: 'Transcription produces an RNA copy of a gene for gene expression.' }
+          },
+          {
+            name: 'Product',
+            slotA: { id: 'q13_r2_c1', answer: 'One parental DNA molecule produces two daughter DNA molecules.' },
+            slotB: { id: 'q13_r2_c2', answer: 'A transcribed gene produces an RNA transcript.' }
+          },
+          {
+            name: 'Template strands',
+            slotA: { id: 'q13_r3_c1', answer: 'Both parental DNA strands act as templates for new DNA synthesis.' },
+            slotB: { id: 'q13_r3_c2', answer: 'Only one DNA strand acts as the template for a particular gene.' }
+          },
+          {
+            name: 'Main enzyme',
+            slotA: { id: 'q13_r4_c1', answer: 'DNA polymerase joins complementary DNA nucleotides to form new DNA strands.' },
+            slotB: { id: 'q13_r4_c2', answer: 'RNA polymerase joins complementary RNA nucleotides to form an RNA strand.' }
+          },
+          {
+            name: 'Nucleotides used',
+            slotA: { id: 'q13_r5_c1', answer: 'DNA nucleotides contain deoxyribose and the bases A, T, G and C.' },
+            slotB: { id: 'q13_r5_c2', answer: 'RNA nucleotides contain ribose and the bases A, U, G and C.' }
+          }
+        ]
+      },
+      {
+        id: 'Q14',
+        shortTitle: 'Bacterial vs. Eukaryotic Replication',
+        category: 'Comparison Table',
+        icon: '📊',
+        title: 'Compare replication in a typical bacterial chromosome and a eukaryotic nuclear chromosome.',
+        marks: 3,
+        markPerSlot: 0.5,
+        type: 'comparison',
+        colA: 'Typical bacterial chromosome',
+        colB: 'Eukaryotic nuclear chromosome',
+        features: [
+          {
+            name: 'DNA shape',
+            slotA: { id: 'q14_r1_c1', answer: 'The chromosome usually consists of a circular DNA molecule.' },
+            slotB: { id: 'q14_r1_c2', answer: 'Each chromosome contains a linear DNA molecule.' }
+          },
+          {
+            name: 'Origins per chromosome',
+            slotA: { id: 'q14_r2_c1', answer: 'Replication usually begins at one origin.' },
+            slotB: { id: 'q14_r2_c2', answer: 'Replication begins at multiple origins.' }
+          },
+          {
+            name: 'Location in the cell',
+            slotA: { id: 'q14_r3_c1', answer: 'Replication occurs in the nucleoid region of the cytoplasm.' },
+            slotB: { id: 'q14_r3_c2', answer: 'Replication occurs inside the nucleus.' }
+          }
+        ]
+      },
+      {
+        id: 'Q18',
+        shortTitle: 'Bacteriophage Diagram',
+        category: 'Diagram Labeling',
+        icon: '🔬',
+        title: 'Identify the six parts marked A–F in the bacteriophage diagram.',
+        marks: 3,
+        markPerSlot: 0.5,
+        type: 'diagram',
+        diagramKey: 'bacteriophage',
+        slots: [
+          { id: 'q18_A', label: 'A', answer: 'Capsid or protein coat' },
+          { id: 'q18_B', label: 'B', answer: 'DNA' },
+          { id: 'q18_C', label: 'C', answer: 'Collar' },
+          { id: 'q18_D', label: 'D', answer: 'Tail sheath' },
+          { id: 'q18_E', label: 'E', answer: 'Base plate' },
+          { id: 'q18_F', label: 'F', answer: 'Tail fibres' }
+        ]
+      },
+      {
+        id: 'Q19',
+        shortTitle: 'DNA Replication Diagram',
+        category: 'Diagram Labeling',
+        icon: '🔬',
+        title: 'Identify the six parts marked A–F in the DNA replication diagram.',
+        marks: 3,
+        markPerSlot: 0.5,
+        type: 'diagram',
+        diagramKey: 'replication',
+        slots: [
+          { id: 'q19_A', label: 'A', answer: 'Helicase' },
+          { id: 'q19_B', label: 'B', answer: 'DNA polymerase' },
+          { id: 'q19_C', label: 'C', answer: 'Leading strand' },
+          { id: 'q19_D', label: 'D', answer: 'Lagging strand' },
+          { id: 'q19_E', label: 'E', answer: 'Okazaki fragment' },
+          { id: 'q19_F', label: 'F', answer: 'RNA primer' }
+        ]
+      },
+      {
+        id: 'Q20',
+        shortTitle: 'Transcription Diagram',
+        category: 'Diagram Labeling',
+        icon: '🔬',
+        title: 'Identify the six parts marked A–F in the transcription diagram.',
+        marks: 3,
+        markPerSlot: 0.5,
+        type: 'diagram',
+        diagramKey: 'transcription',
+        slots: [
+          { id: 'q20_A', label: 'A', answer: 'Promoter' },
+          { id: 'q20_B', label: 'B', answer: 'RNA polymerase' },
+          { id: 'q20_C', label: 'C', answer: 'DNA template strand' },
+          { id: 'q20_D', label: 'D', answer: 'DNA non-template strand' },
+          { id: 'q20_E', label: 'E', answer: 'Growing RNA transcript' },
+          { id: 'q20_F', label: 'F', answer: 'Free RNA nucleotides' }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 4. STATE MANAGEMENT
+    // =========================================================================
+    let currentQIdx = 0;
+    let gradingMode = 'instant'; // 'instant' | 'exam'
+    let selectedCardId = null;
+    let trayExpanded = false;
+    const stateMap = {};
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function getSlots(q) {
+      return q.type === 'comparison'
+        ? q.features.flatMap(f => [f.slotA, f.slotB])
+        : q.slots;
+    }
+
+    function initQuestion(q) {
+      const slots = getSlots(q);
+      const cards = {};
+      const ids = [];
+      slots.forEach((s, i) => {
+        const cid = `${q.id}_c_${i}`;
+        cards[cid] = { id: cid, text: s.answer };
+        ids.push(cid);
+      });
+      stateMap[q.id] = {
+        bank: shuffle(ids),
+        placed: {}, // slotId -> cardId
+        checked: false,
+        cards
+      };
+    }
+
+    QUESTIONS.forEach(initQuestion);
+
+    function checkSlotCorrect(q, slot) {
+      const cid = stateMap[q.id].placed[slot.id];
+      if (!cid) return null;
+      return stateMap[q.id].cards[cid]?.text === slot.answer;
+    }
+
+    function getQScore(q) {
+      let count = 0;
+      getSlots(q).forEach(s => {
+        if (checkSlotCorrect(q, s) === true) count++;
+      });
+      return count * q.markPerSlot;
+    }
+
+    function getTotalScore() {
+      return QUESTIONS.reduce((acc, q) => acc + getQScore(q), 0);
+    }
+
+    // =========================================================================
+    // 5. NAVIGATION (LANDING <-> DASHBOARD <-> WORKSPACE)
+    // =========================================================================
+    function switchView(viewId) {
+      ['landing-view', 'dashboard-view', 'practice-view'].forEach(id => {
+        document.getElementById(id).classList.toggle('hidden', id !== viewId);
+      });
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    function openLanding() {
+      playSound('drop');
+      selectedCardId = null;
+      switchView('landing-view');
+    }
+
+    function openDashboard() {
+      playSound('pickup');
+      selectedCardId = null;
+      switchView('dashboard-view');
+      renderDashboard(true);
+    }
+
+    function openQuestion(idx) {
+      playSound('pickup');
+      currentQIdx = idx;
+      selectedCardId = null;
+      switchView('practice-view');
+      renderWorkspace();
+    }
+
+    function goNextQuestion() {
+      if (currentQIdx < QUESTIONS.length - 1) {
+        openQuestion(currentQIdx + 1);
+      } else {
+        openDashboard();
+      }
+    }
+
+    function renderDashboard(animate = true) {
+      const total = getTotalScore();
+      const pct = Math.min(100, Math.round((total / 17) * 100));
+      document.getElementById('dash-total-text').textContent = `${total.toFixed(1)} / 17.0 Marks`;
+      document.getElementById('dash-total-bar').style.width = `${pct}%`;
+
+      const container = document.getElementById('dashboard-cards');
+      container.innerHTML = QUESTIONS.map((q, idx) => {
+        const score = getQScore(q);
+        const totalSlots = getSlots(q).length;
+        const placedCount = Object.keys(stateMap[q.id].placed).length;
+        const qPct = Math.min(100, Math.round((score / q.marks) * 100));
+        const done = score === q.marks;
+
+        let badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold t-bg-subtle t-text-muted border t-border">Start</span>`;
+        if (done) {
+          badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">✓ Done</span>`;
+        } else if (placedCount > 0) {
+          badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold t-primary-soft border">${placedCount}/${totalSlots}</span>`;
+        }
+
+        return `
+          <button onclick="openQuestion(${idx})"
+                  style="animation-delay: ${animate ? idx * 55 : 0}ms"
+                  class="${animate ? 'animate-stagger' : ''} w-full t-bg-card rounded-3xl border t-border p-4 text-left active:scale-[0.98] transition shadow-2xs">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-xl text-xs font-extrabold t-primary-bg">${q.id}</span>
+                <span class="text-xs font-semibold t-text-muted">${q.icon} ${q.category}</span>
+              </div>
+              ${badge}
+            </div>
+
+            <div class="font-extrabold text-sm t-text-main mb-3">${q.shortTitle}</div>
+
+            <div class="flex items-center justify-between text-[11px] font-bold mb-1.5">
+              <span class="t-text-secondary">${score.toFixed(1)} / ${q.marks.toFixed(1)} Marks</span>
+              <span class="t-primary-text">Tap to practice →</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full t-bg-subtle overflow-hidden">
+              <div class="h-full ${done ? 'bg-emerald-500' : 't-primary-bg'} rounded-full transition-all duration-300" style="width:${qPct}%"></div>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 6. CUSTOM MOBILE POINTER DRAG-AND-DROP + TAP-TO-PLACE
+    // =========================================================================
+    let activeDrag = null; // { cardId, startX, startY, moved, sourceEl }
+
+    function onCardPointerDown(e, cardId) {
+      if (e.button !== undefined && e.button !== 0) return;
+      // Ignore if tapping the remove '×' button inside a filled slot
+      if (e.target.closest('.remove-card-btn')) return;
+
+      unlockAudio();
+      activeDrag = {
+        cardId,
+        startX: e.clientX,
+        startY: e.clientY,
+        moved: false,
+        sourceEl: e.currentTarget
+      };
+    }
+
+    window.addEventListener('pointermove', (e) => {
+      if (!activeDrag) return;
+      const dx = e.clientX - activeDrag.startX;
+      const dy = e.clientY - activeDrag.startY;
+
+      if (!activeDrag.moved && Math.hypot(dx, dy) > 8) {
+        activeDrag.moved = true;
+        selectedCardId = null;
+        playSound('pickup');
+        vibrateDevice(12);
+
+        const q = QUESTIONS[currentQIdx];
+        const card = stateMap[q.id].cards[activeDrag.cardId];
+        const ghost = document.getElementById('drag-ghost');
+        ghost.textContent = card.text;
+        ghost.classList.remove('hidden');
+        if (activeDrag.sourceEl) activeDrag.sourceEl.classList.add('is-dragging-source');
+      }
+
+      if (activeDrag.moved) {
+        e.preventDefault();
+        const ghost = document.getElementById('drag-ghost');
+        ghost.style.left = `${e.clientX}px`;
+        ghost.style.top = `${e.clientY}px`;
+
+        // Highlight drop slot directly beneath finger
+        document.querySelectorAll('.drop-slot.drag-hover').forEach(el => el.classList.remove('drag-hover'));
+        const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+        const slotEl = elemBelow ? elemBelow.closest('[data-slot-id]') : null;
+        if (slotEl) {
+          slotEl.classList.add('drag-hover');
+        }
+      }
+    }, { passive: false });
+
+    window.addEventListener('pointerup', (e) => {
+      if (!activeDrag) return;
+      const { cardId, moved, sourceEl } = activeDrag;
+      activeDrag = null;
+
+      const ghost = document.getElementById('drag-ghost');
+      ghost.classList.add('hidden');
+      if (sourceEl) sourceEl.classList.remove('is-dragging-source');
+      document.querySelectorAll('.drop-slot.drag-hover').forEach(el => el.classList.remove('drag-hover'));
+
+      if (moved) {
+        const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+        const slotEl = elemBelow ? elemBelow.closest('[data-slot-id]') : null;
+        const trayEl = elemBelow ? elemBelow.closest('#bottom-tray') : null;
+
+        if (slotEl) {
+          placeCardInSlot(cardId, slotEl.getAttribute('data-slot-id'));
+        } else if (trayEl) {
+          returnCardToTray(cardId);
+        }
+      } else {
+        // Pure tap on card -> toggle selection for instant Tap-to-Place
+        handleCardTap(cardId);
+      }
+    });
+
+    function handleCardTap(cardId) {
+      playSound('pickup');
+      vibrateDevice(8);
+      selectedCardId = selectedCardId === cardId ? null : cardId;
+      renderWorkspace();
+    }
+
+    function handleSlotTap(slotId) {
+      const q = QUESTIONS[currentQIdx];
+      const st = stateMap[q.id];
+
+      if (selectedCardId) {
+        const cid = selectedCardId;
+        selectedCardId = null;
+        placeCardInSlot(cid, slotId);
+      } else if (st.placed[slotId]) {
+        handleCardTap(st.placed[slotId]);
+      }
+    }
+
+    function placeCardInSlot(cardId, targetSlotId) {
+      const q = QUESTIONS[currentQIdx];
+      const st = stateMap[q.id];
+      const prevScore = getQScore(q);
+
+      // Find if card came from another slot
+      let originSlotId = null;
+      for (const [sId, cId] of Object.entries(st.placed)) {
+        if (cId === cardId) {
+          originSlotId = sId;
+          break;
+        }
+      }
+
+      const displacedCardId = st.placed[targetSlotId];
+      st.bank = st.bank.filter(id => id !== cardId);
+
+      if (originSlotId) {
+        if (displacedCardId) {
+          st.placed[originSlotId] = displacedCardId;
+        } else {
+          delete st.placed[originSlotId];
+        }
+      } else if (displacedCardId) {
+        st.bank.push(displacedCardId);
+      }
+
+      st.placed[targetSlotId] = cardId;
+
+      if (gradingMode === 'exam') {
+        st.checked = false;
+        playSound('drop');
+        vibrateDevice(10);
+      } else {
+        const slotObj = getSlots(q).find(s => s.id === targetSlotId);
+        const ok = slotObj && checkSlotCorrect(q, slotObj);
+        const newScore = getQScore(q);
+        if (ok && newScore === q.marks && prevScore < q.marks) {
+          playSound('complete');
+          vibrateDevice([25, 40, 40]);
+          burstConfetti();
+        } else if (ok) {
+          playSound('correct');
+          vibrateDevice(15);
+        } else {
+          playSound('wrong');
+          vibrateDevice([30, 30, 30]);
+        }
+      }
+
+      renderWorkspace(targetSlotId);
+    }
+
+    function returnCardToTray(cardId, e) {
+      if (e) e.stopPropagation();
+      playSound('drop');
+      vibrateDevice(8);
+      const q = QUESTIONS[currentQIdx];
+      const st = stateMap[q.id];
+
+      for (const [sId, cId] of Object.entries(st.placed)) {
+        if (cId === cardId) delete st.placed[sId];
+      }
+      if (!st.bank.includes(cardId)) st.bank.push(cardId);
+      if (selectedCardId === cardId) selectedCardId = null;
+      if (gradingMode === 'exam') st.checked = false;
+
+      renderWorkspace();
+    }
+
+    // =========================================================================
+    // 7. WORKSPACE CONTROLS
+    // =========================================================================
+    function setGradingMode(mode) {
+      playSound('pickup');
+      gradingMode = mode;
+      updateModeUI();
+      renderWorkspace();
+    }
+
+    function updateModeUI() {
+      const iBtn = document.getElementById('opt-instant');
+      const eBtn = document.getElementById('opt-exam');
+      if (!iBtn || !eBtn) return;
+      if (gradingMode === 'instant') {
+        iBtn.className = 'flex-1 rounded-xl text-xs font-bold transition t-primary-bg shadow-2xs';
+        eBtn.className = 'flex-1 rounded-xl text-xs font-bold transition t-text-secondary';
+      } else {
+        eBtn.className = 'flex-1 rounded-xl text-xs font-bold transition t-primary-bg shadow-2xs';
+        iBtn.className = 'flex-1 rounded-xl text-xs font-bold transition t-text-secondary';
+      }
+    }
+
+    function checkExamAnswers() {
+      const q = QUESTIONS[currentQIdx];
+      stateMap[q.id].checked = true;
+      const score = getQScore(q);
+      if (score === q.marks) {
+        playSound('complete');
+        burstConfetti();
+      } else {
+        playSound('drop');
+      }
+      renderWorkspace();
+    }
+
+    function shuffleTray() {
+      playSound('pickup');
+      const q = QUESTIONS[currentQIdx];
+      stateMap[q.id].bank = shuffle(stateMap[q.id].bank);
+      renderTray();
+    }
+
+    function toggleTrayLayout() {
+      playSound('pickup');
+      trayExpanded = !trayExpanded;
+      const btn = document.getElementById('tray-layout-btn');
+      btn.textContent = trayExpanded ? '↔ Swipe' : '↕ Expand';
+      renderTray();
+    }
+
+    function showAnswerKey() {
+      playSound('pickup');
+      const q = QUESTIONS[currentQIdx];
+      const st = stateMap[q.id];
+      st.placed = {};
+      st.bank = [];
+      st.checked = true;
+      getSlots(q).forEach((s, i) => {
+        st.placed[s.id] = `${q.id}_c_${i}`;
+      });
+      selectedCardId = null;
+      renderWorkspace();
+    }
+
+    function resetCurrentQuestion() {
+      playSound('pickup');
+      const q = QUESTIONS[currentQIdx];
+      initQuestion(q);
+      selectedCardId = null;
+      renderWorkspace();
+    }
+
+    function resetAllProgress(feedback = false) {
+      playSound('pickup');
+      QUESTIONS.forEach(initQuestion);
+      selectedCardId = null;
+      renderDashboard(false);
+      if (feedback) {
+        const btn = document.getElementById('dash-reset-btn');
+        if (btn) {
+          btn.innerHTML = '<span>✓</span><span>All Reset!</span>';
+          setTimeout(() => {
+            btn.innerHTML = '<span>↺</span><span>Reset All Progress</span>';
+          }, 1100);
+        }
+      }
+    }
+
+    // =========================================================================
+    // 8. MOBILE-FIRST RENDERERS (STACKED COMPARISON CARDS + CRISP SVGs)
+    // =========================================================================
+    function renderSlotBox(q, slot, snapSlotId, prefixBadge = '') {
+      const st = stateMap[q.id];
+      const placedId = st.placed[slot.id];
+      const showCheck = gradingMode === 'instant' || st.checked;
+
+      if (!placedId) {
+        const readyClass = selectedCardId ? 'tap-ready' : 't-bg-subtle t-border-strong';
+        return `
+          <div data-slot-id="${slot.id}"
+               onclick="handleSlotTap('${slot.id}')"
+               class="drop-slot ${readyClass} w-full rounded-2xl border-2 border-dashed px-3.5 py-3 flex items-center justify-between gap-2 cursor-pointer">
+            <div class="flex items-center gap-2">
+              ${prefixBadge}
+              <span class="text-xs font-semibold ${selectedCardId ? 't-primary-text font-bold' : 't-text-muted'}">
+                ${selectedCardId ? 'Tap here to place' : 'Drop or tap to place'}
+              </span>
+            </div>
+            <span class="text-xs opacity-40">+</span>
+          </div>
+        `;
+      }
+
+      const card = st.cards[placedId];
+      const isOk = checkSlotCorrect(q, slot);
+      const isSelected = selectedCardId === placedId;
+      const anim = snapSlotId === slot.id
+        ? (showCheck ? (isOk ? 'animate-snap' : 'animate-shake') : 'animate-snap')
+        : '';
+
+      let boxStyle = 't-bg-card t-border-strong t-text-main';
+      let statusIcon = '';
+
+      if (showCheck) {
+        if (isOk) {
+          boxStyle = 'bg-emerald-500/15 border-emerald-500 t-text-main';
+          statusIcon = `<span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-extrabold flex items-center justify-center shrink-0">✓</span>`;
+        } else {
+          boxStyle = 'bg-rose-500/15 border-rose-500 t-text-main';
+          statusIcon = `<span class="w-5 h-5 rounded-full bg-rose-600 text-white text-[11px] font-extrabold flex items-center justify-center shrink-0">✕</span>`;
+        }
+      }
+
+      if (isSelected) {
+        boxStyle += ' ring-2 ring-amber-400';
+      }
+
+      return `
+        <div data-slot-id="${slot.id}"
+             onpointerdown="onCardPointerDown(event, '${placedId}')"
+             onclick="handleSlotTap('${slot.id}')"
+             class="drop-slot touch-card ${anim} w-full rounded-2xl border-2 ${boxStyle} px-3.5 py-2.5 flex items-center justify-between gap-2.5 cursor-pointer">
+          <div class="flex items-center gap-2 min-w-0">
+            ${prefixBadge}
+            ${statusIcon}
+            <span class="text-xs font-semibold leading-snug">${card.text}</span>
+          </div>
+          <button type="button"
+                  onclick="returnCardToTray('${placedId}', event)"
+                  aria-label="Remove answer"
+                  class="remove-card-btn w-7 h-7 rounded-full t-bg-muted t-text-main flex items-center justify-center text-xs font-extrabold shrink-0 active:scale-90 transition">
+            ×
+          </button>
+        </div>
+      `;
+    }
+
+    function renderComparisonCards(q, snapSlotId) {
+      const stage = document.getElementById('ws-stage');
+      stage.innerHTML = q.features.map((feat, idx) => `
+        <div class="t-bg-card rounded-3xl border t-border p-4 shadow-2xs flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-xl text-xs font-extrabold t-primary-soft border">
+              ${idx + 1}. ${feat.name}
+            </span>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider t-text-secondary px-1">
+              ${q.colA}
+            </span>
+            ${renderSlotBox(q, feat.slotA, snapSlotId)}
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider t-text-secondary px-1">
+              ${q.colB}
+            </span>
+            ${renderSlotBox(q, feat.slotB, snapSlotId)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDiagramStage(q, snapSlotId) {
+      const stage = document.getElementById('ws-stage');
+      const ink = 'var(--svg-ink)';
+      const accent = 'var(--svg-accent)';
+      const fill = 'var(--svg-fill)';
+
+      let svgMarkup = '';
+
+      if (q.diagramKey === 'bacteriophage') {
+        svgMarkup = `
+          <svg viewBox="0 0 320 365" class="w-full max-w-[260px] mx-auto h-auto">
+            <polygon points="160,22 222,58 222,130 160,166 98,130 98,58"
+                     fill="${fill}" stroke="${ink}" stroke-width="3.5" stroke-linejoin="round"/>
+            <polyline points="98,58 160,90 222,58" fill="none" stroke="${ink}" stroke-opacity="0.22" stroke-width="1.5"/>
+            <line x1="160" y1="22" x2="160" y2="90" stroke="${ink}" stroke-opacity="0.22" stroke-width="1.5"/>
+            <ellipse cx="160" cy="94" rx="32" ry="28" fill="none" stroke="${ink}" stroke-width="2.5"/>
+            <ellipse cx="160" cy="97" rx="29" ry="25" fill="none" stroke="${ink}" stroke-opacity="0.7" stroke-width="1.8"/>
+            <rect x="148" y="166" width="24" height="15" fill="${fill}" stroke="${ink}" stroke-width="3"/>
+            <rect x="142" y="181" width="36" height="100" fill="${fill}" stroke="${ink}" stroke-width="3"/>
+            ${[194, 206, 218, 230, 242, 254, 266].map(y =>
+              `<line x1="142" y1="${y}" x2="178" y2="${y}" stroke="${ink}" stroke-width="2"/>`
+            ).join('')}
+            <rect x="128" y="281" width="64" height="10" rx="2" fill="${fill}" stroke="${ink}" stroke-width="3"/>
+            <polyline points="130,289 85,316 52,350" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="134,291 96,322 78,350" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="138,291 118,349 106,354" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="190,289 235,316 268,350" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="186,291 224,322 242,350" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="182,291 202,349 214,354" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+            <line x1="214" y1="54" x2="288" y2="46" stroke="${accent}" stroke-width="2.2"/>
+            <circle cx="214" cy="54" r="3.5" fill="${accent}"/>
+            <text x="293" y="51" font-weight="800" font-size="16" fill="${ink}">A</text>
+
+            <line x1="160" y1="94" x2="32" y2="82" stroke="${accent}" stroke-width="2.2"/>
+            <circle cx="160" cy="94" r="3.5" fill="${accent}"/>
+            <text x="14" y="87" font-weight="800" font-size="16" fill="${ink}">B</text>
+
+            <line x1="172" y1="173" x2="288" y2="165" stroke="${accent}" stroke-width="2.2"/>
+            <circle cx="172" cy="173" r="3.5" fill="${accent}"/>
+            <text x="293" y="170" font-weight="800" font-size="16" fill="${ink}">C</text>
+
+            <line x1="178" y1="230" x2="288" y2="230" stroke="${accent}" stroke-width="2.2"/>
+            <circle cx="178" cy="230" r="3.5" fill="${accent}"/>
+            <text x="293" y="235" font-weight="800" font-size="16" fill="${ink}">D</text>
+
+            <line x1="192" y1="286" x2="288" y2="281" stroke="${accent}" stroke-width="2.2"/>
+            <circle cx="192" cy="286" r="3.5" fill="${accent}"/>
+            <text x="293" y="286" font-weight="800" font-size="16" fill="${ink}">E</text>
+
+            <line x1="94" y1="310" x2="32" y2="302" stroke="${accent}" stroke-width="2.2"/>
+            <circle cx="94" cy="310" r="3.5" fill="${accent}"/>
+            <text x="14" y="307" font-weight="800" font-size="16" fill="${ink}">F</text>
+          </svg>
+        `;
+      } else if (q.diagramKey === 'replication') {
+        svgMarkup = `
+          <svg viewBox="0 0 640 275" class="w-full h-auto">
+            <text x="18" y="138" font-size="15" font-weight="800" fill="${ink}">5′</text>
+            <text x="18" y="164" font-size="15" font-weight="800" fill="${ink}">3′</text>
+            <line x1="40" y1="134" x2="175" y2="134" stroke="${ink}" stroke-width="3.2"/>
+            <line x1="40" y1="158" x2="175" y2="158" stroke="${ink}" stroke-width="3.2"/>
+            ${[52, 68, 84, 100, 116, 132, 148, 164].map(x =>
+              `<line x1="${x}" y1="134" x2="${x}" y2="158" stroke="${ink}" stroke-opacity="0.7" stroke-width="1.8"/>`
+            ).join('')}
+
+            <polyline points="175,134 250,62 585,62" fill="none" stroke="${ink}" stroke-width="3.2" stroke-linejoin="round"/>
+            <text x="595" y="66" font-size="15" font-weight="800" fill="${ink}">3′</text>
+            <polyline points="175,158 250,222 585,222" fill="none" stroke="${ink}" stroke-width="3.2" stroke-linejoin="round"/>
+            <text x="595" y="226" font-size="15" font-weight="800" fill="${ink}">5′</text>
+
+            <line x1="255" y1="80" x2="575" y2="80" stroke="${ink}" stroke-width="3.2"/>
+            ${Array.from({length: 21}, (_, i) => 262 + i * 15).map(x =>
+              `<line x1="${x}" y1="62" x2="${x}" y2="80" stroke="${ink}" stroke-opacity="0.7" stroke-width="1.6"/>`
+            ).join('')}
+
+            <circle cx="285" cy="75" r="20" fill="${fill}" fill-opacity="0.65" stroke="${ink}" stroke-width="2.8"/>
+            <circle cx="195" cy="146" r="21" fill="${fill}" stroke="${ink}" stroke-width="3"/>
+
+            ${[280, 385, 490].map(startX => `
+              <line x1="${startX}" y1="204" x2="${startX + 85}" y2="204" stroke="${ink}" stroke-width="3.2"/>
+              <rect x="${startX}" y="199" width="22" height="10" fill="${ink}"/>
+              ${[6, 20, 34, 48, 62, 76].map(dx =>
+                `<line x1="${startX + dx}" y1="204" x2="${startX + dx}" y2="222" stroke="${ink}" stroke-opacity="0.7" stroke-width="1.6"/>`
+              ).join('')}
+            `).join('')}
+
+            <text x="72" y="236" font-size="14" font-weight="700" fill="${ink}">Fork movement</text>
+            <line x1="185" y1="250" x2="62" y2="250" stroke="${ink}" stroke-width="2.4"/>
+            <polygon points="62,250 71,245 71,255" fill="${ink}"/>
+
+            <line x1="195" y1="125" x2="145" y2="36" stroke="${accent}" stroke-width="2.4"/>
+            <text x="131" y="28" font-weight="800" font-size="18" fill="${ink}">A</text>
+
+            <line x1="285" y1="55" x2="285" y2="36" stroke="${accent}" stroke-width="2.4"/>
+            <text x="279" y="28" font-weight="800" font-size="18" fill="${ink}">B</text>
+
+            <line x1="465" y1="80" x2="465" y2="36" stroke="${accent}" stroke-width="2.4"/>
+            <circle cx="465" cy="80" r="3.5" fill="${accent}"/>
+            <text x="459" y="28" font-weight="800" font-size="18" fill="${ink}">C</text>
+
+            <polyline points="280,186 280,176 575,176 575,186" fill="none" stroke="${ink}" stroke-width="2.2"/>
+            <line x1="428" y1="176" x2="428" y2="155" stroke="${accent}" stroke-width="2.4"/>
+            <text x="422" y="148" font-weight="800" font-size="18" fill="${ink}">D</text>
+
+            <line x1="291" y1="209" x2="262" y2="252" stroke="${accent}" stroke-width="2.4"/>
+            <text x="245" y="266" font-weight="800" font-size="18" fill="${ink}">F</text>
+
+            <line x1="435" y1="204" x2="435" y2="252" stroke="${accent}" stroke-width="2.4"/>
+            <circle cx="435" cy="204" r="3.5" fill="${accent}"/>
+            <text x="429" y="268" font-weight="800" font-size="18" fill="${ink}">E</text>
+          </svg>
+        `;
+      } else if (q.diagramKey === 'transcription') {
+        svgMarkup = `
+          <svg viewBox="0 0 640 315" class="w-full h-auto">
+            <text x="25" y="130" font-size="15" font-weight="800" fill="${ink}">5′</text>
+            <text x="25" y="160" font-size="15" font-weight="800" fill="${ink}">3′</text>
+            <line x1="48" y1="126" x2="185" y2="126" stroke="${ink}" stroke-width="3.2"/>
+            <line x1="48" y1="154" x2="185" y2="154" stroke="${ink}" stroke-width="3.2"/>
+            ${[60, 76, 92, 108, 124, 140, 156, 172].map(x =>
+              `<line x1="${x}" y1="126" x2="${x}" y2="154" stroke="${ink}" stroke-opacity="0.7" stroke-width="1.8"/>`
+            ).join('')}
+
+            <polyline points="185,126 245,82 395,82 455,126 575,126" fill="none" stroke="${ink}" stroke-width="3.2" stroke-linejoin="round"/>
+            <polyline points="185,154 245,198 395,198 455,154 575,154" fill="none" stroke="${ink}" stroke-width="3.2" stroke-linejoin="round"/>
+
+            ${[468, 484, 500, 516, 532, 548, 564].map(x =>
+              `<line x1="${x}" y1="126" x2="${x}" y2="154" stroke="${ink}" stroke-opacity="0.7" stroke-width="1.8"/>`
+            ).join('')}
+            <text x="584" y="130" font-size="15" font-weight="800" fill="${ink}">3′</text>
+            <text x="584" y="160" font-size="15" font-weight="800" fill="${ink}">5′</text>
+
+            <ellipse cx="320" cy="140" rx="92" ry="74" fill="${fill}" fill-opacity="0.45" stroke="${ink}" stroke-width="3"/>
+
+            <polyline points="78,242 135,256 205,235 268,180 365,180" fill="none" stroke="${ink}" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="72" y="228" font-size="15" font-weight="800" fill="${ink}">5′</text>
+            <text x="368" y="174" font-size="15" font-weight="800" fill="${ink}">3′</text>
+
+            ${[274, 288, 302, 316, 330, 344, 358].map(x =>
+              `<line x1="${x}" y1="180" x2="${x}" y2="198" stroke="${ink}" stroke-opacity="0.7" stroke-width="1.6"/>`
+            ).join('')}
+
+            <g transform="translate(465, 232)">
+              <circle cx="0" cy="0" r="14" fill="${fill}" stroke="${ink}" stroke-width="2.4"/>
+              <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="800" fill="${ink}">A</text>
+            </g>
+            <g transform="translate(448, 272)">
+              <circle cx="0" cy="0" r="14" fill="${fill}" stroke="${ink}" stroke-width="2.4"/>
+              <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="800" fill="${ink}">C</text>
+            </g>
+            <g transform="translate(518, 256)">
+              <circle cx="0" cy="0" r="14" fill="${fill}" stroke="${ink}" stroke-width="2.4"/>
+              <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="800" fill="${ink}">U</text>
+            </g>
+
+            <polyline points="82,112 82,100 148,100 148,112" fill="none" stroke="${ink}" stroke-width="2.2"/>
+            <line x1="115" y1="100" x2="108" y2="42" stroke="${accent}" stroke-width="2.4"/>
+            <text x="98" y="34" font-weight="800" font-size="18" fill="${ink}">A</text>
+
+            <line x1="358" y1="73" x2="348" y2="38" stroke="${accent}" stroke-width="2.4"/>
+            <circle cx="358" cy="73" r="3.5" fill="${accent}"/>
+            <text x="340" y="30" font-weight="800" font-size="18" fill="${ink}">B</text>
+
+            <line x1="528" y1="126" x2="546" y2="66" stroke="${accent}" stroke-width="2.4"/>
+            <circle cx="528" cy="126" r="3.5" fill="${accent}"/>
+            <text x="542" y="58" font-weight="800" font-size="18" fill="${ink}">D</text>
+
+            <line x1="518" y1="154" x2="554" y2="195" stroke="${accent}" stroke-width="2.4"/>
+            <circle cx="518" cy="154" r="3.5" fill="${accent}"/>
+            <text x="556" y="208" font-weight="800" font-size="18" fill="${ink}">C</text>
+
+            <line x1="162" y1="248" x2="168" y2="282" stroke="${accent}" stroke-width="2.4"/>
+            <circle cx="162" cy="248" r="3.5" fill="${accent}"/>
+            <text x="163" y="300" font-weight="800" font-size="18" fill="${ink}">E</text>
+
+            <line x1="532" y1="262" x2="565" y2="282" stroke="${accent}" stroke-width="2.4"/>
+            <text x="570" y="294" font-weight="800" font-size="18" fill="${ink}">F</text>
+          </svg>
+        `;
+      }
+
+      stage.innerHTML = `
+        <div class="t-bg-card rounded-3xl border t-border p-3.5 shadow-2xs">
+          ${svgMarkup}
+        </div>
+
+        <div class="flex flex-col gap-2.5">
+          ${q.slots.map(slot => {
+            const badge = `<span class="w-7 h-7 rounded-xl t-primary-bg text-xs font-extrabold flex items-center justify-center shrink-0">${slot.label}</span>`;
+            return renderSlotBox(q, slot, snapSlotId, badge);
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderTray() {
+      const q = QUESTIONS[currentQIdx];
+      const st = stateMap[q.id];
+      const container = document.getElementById('tray-cards');
+      const countEl = document.getElementById('tray-count');
+      const hintEl = document.getElementById('tray-hint');
+
+      countEl.textContent = st.bank.length;
+      hintEl.textContent = selectedCardId ? 'Tap any slot above' : 'Drag or tap card';
+      hintEl.className = selectedCardId
+        ? 'text-[11px] font-extrabold t-primary-text'
+        : 'text-[11px] font-semibold t-text-muted';
+
+      if (trayExpanded) {
+        container.className = 'flex flex-col gap-2 max-h-[42dvh] overflow-y-auto pb-1';
+      } else {
+        container.className = 'flex flex-row gap-2.5 overflow-x-auto no-scrollbar pb-1.5 items-stretch';
+      }
+
+      if (st.bank.length === 0) {
+        container.innerHTML = `
+          <div class="w-full py-4 text-center text-xs font-bold t-text-muted">
+            ✓ All answers placed
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = st.bank.map(cid => {
+        const card = st.cards[cid];
+        const isSelected = selectedCardId === cid;
+        const widthClass = trayExpanded ? 'w-full' : 'min-w-[215px] max-w-[245px] shrink-0';
+
+        return `
+          <div onpointerdown="onCardPointerDown(event, '${cid}')"
+               class="touch-card ${widthClass} rounded-2xl border-2 px-3.5 py-3 flex items-center text-left text-xs font-semibold leading-snug cursor-pointer ${
+                 isSelected
+                   ? 't-primary-bg border-transparent shadow-md ring-2 ring-amber-400'
+                   : 't-bg-subtle t-text-main t-border-strong'
+               }">
+            ${card.text}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderWorkspace(snapSlotId = null) {
+      const q = QUESTIONS[currentQIdx];
+      const score = getQScore(q);
+
+      document.getElementById('ws-q-id').textContent = q.id;
+      document.getElementById('ws-q-score').textContent = `${score.toFixed(1)} / ${q.marks.toFixed(1)}`;
+      document.getElementById('ws-category-tag').textContent = q.category;
+      document.getElementById('ws-marks-tag').textContent = `${q.marks} Marks`;
+      document.getElementById('ws-title').textContent = q.title;
+
+      const checkBtn = document.getElementById('ws-exam-check-btn');
+      checkBtn.classList.toggle('hidden', gradingMode === 'instant');
+
+      const nextBtn = document.getElementById('ws-next-btn');
+      nextBtn.innerHTML = currentQIdx < QUESTIONS.length - 1
+        ? `<span>Next Module (${QUESTIONS[currentQIdx + 1].id})</span><span>→</span>`
+        : `<span>Back to Modules</span><span>✓</span>`;
+
+      if (q.type === 'comparison') {
+        renderComparisonCards(q, snapSlotId);
+      } else {
+        renderDiagramStage(q, snapSlotId);
+      }
+
+      renderTray();
+    }
+
+    // Boot
+    applyTheme(currentTheme);
+    updateSoundUI();
+    renderDashboard(false);
+  </script>
+</body>
+</html>
